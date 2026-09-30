@@ -6,9 +6,11 @@ import co.com.wallacesoft.paymenow.entity.Plataforma;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
 import co.com.wallacesoft.paymenow.repository.PlataformaRepository;
 import co.com.wallacesoft.paymenow.service.PlataformaService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -18,6 +20,7 @@ import java.util.List;
 public class PlataformaServiceImpl implements PlataformaService {
 
     private final PlataformaRepository repository;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -43,8 +46,11 @@ public class PlataformaServiceImpl implements PlataformaService {
                 .descripcion(dto.descripcion())
                 .cantidadCuentas(dto.cantidadCuentas())
                 .valor(dto.valor())
+                .activo(StringUtils.hasText(dto.activo()) ? dto.activo() : "S")
                 .build();
-        return toDTO(repository.save(entity));
+        Plataforma guardado = repository.save(entity);
+        entityManager.refresh(guardado);
+        return toDTO(guardado);
     }
 
     @Override
@@ -54,6 +60,7 @@ public class PlataformaServiceImpl implements PlataformaService {
         entity.setDescripcion(dto.descripcion());
         entity.setCantidadCuentas(dto.cantidadCuentas());
         entity.setValor(dto.valor());
+        entity.setActivo(StringUtils.hasText(dto.activo()) ? dto.activo() : entity.getActivo());
         return toDTO(repository.save(entity));
     }
 
@@ -69,6 +76,6 @@ public class PlataformaServiceImpl implements PlataformaService {
 
     private PlataformaDTO toDTO(Plataforma entity) {
         return new PlataformaDTO(entity.getIdPlat(), entity.getNombre(), entity.getDescripcion(),
-                entity.getCantidadCuentas(), entity.getValor());
+                entity.getCantidadCuentas(), entity.getValor(), entity.getActivo(), entity.getFechaCreacion());
     }
 }

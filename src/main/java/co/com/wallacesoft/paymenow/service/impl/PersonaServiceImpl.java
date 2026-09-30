@@ -9,6 +9,7 @@ import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
 import co.com.wallacesoft.paymenow.repository.PersonaRepository;
 import co.com.wallacesoft.paymenow.repository.TiposIdentificacionRepository;
 import co.com.wallacesoft.paymenow.service.PersonaService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,7 @@ public class PersonaServiceImpl implements PersonaService {
 
     private final PersonaRepository personaRepository;
     private final TiposIdentificacionRepository tiposIdentificacionRepository;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -73,9 +76,14 @@ public class PersonaServiceImpl implements PersonaService {
                 .tipoIdentificacion(tipo)
                 .identificacion(dto.identificacion())
                 .email(dto.email())
+                .telefono(dto.telefono())
+                .celular(dto.celular())
+                .activo(StringUtils.hasText(dto.activo()) ? dto.activo() : "S")
                 .build();
 
-        return toDTO(personaRepository.save(entity));
+        Persona guardado = personaRepository.save(entity);
+        entityManager.refresh(guardado);
+        return toDTO(guardado);
     }
 
     @Override
@@ -99,6 +107,9 @@ public class PersonaServiceImpl implements PersonaService {
         entity.setTipoIdentificacion(tipo);
         entity.setIdentificacion(dto.identificacion());
         entity.setEmail(dto.email());
+        entity.setTelefono(dto.telefono());
+        entity.setCelular(dto.celular());
+        entity.setActivo(StringUtils.hasText(dto.activo()) ? dto.activo() : entity.getActivo());
 
         return toDTO(personaRepository.save(entity));
     }
@@ -135,7 +146,11 @@ public class PersonaServiceImpl implements PersonaService {
                 entity.getTipoIdentificacion().getIdTiid(),
                 entity.getTipoIdentificacion().getAbreviatura(),
                 entity.getIdentificacion(),
-                entity.getEmail());
+                entity.getEmail(),
+                entity.getTelefono(),
+                entity.getCelular(),
+                entity.getActivo(),
+                entity.getFechaCreacion());
     }
 
 }

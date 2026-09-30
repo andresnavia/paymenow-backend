@@ -5,6 +5,7 @@ import co.com.wallacesoft.paymenow.entity.TiposIdentificacion;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
 import co.com.wallacesoft.paymenow.repository.TiposIdentificacionRepository;
 import co.com.wallacesoft.paymenow.service.impl.TiposIdentificacionServiceImpl;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,9 @@ class TiposIdentificacionServiceImplTest {
 
     @Mock
     private TiposIdentificacionRepository repository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private TiposIdentificacionServiceImpl service;
@@ -71,7 +75,7 @@ class TiposIdentificacionServiceImplTest {
 
     @Test
     void create_deberiaGuardarYRetornarDTO() {
-        TiposIdentificacionDTO dto = new TiposIdentificacionDTO(null, "CE", "Cedula de extranjeria");
+        TiposIdentificacionDTO dto = new TiposIdentificacionDTO(null, "CE", "Cedula de extranjeria", null, null);
         TiposIdentificacion guardado = TiposIdentificacion.builder()
                 .idTiid(2).abreviatura("CE").descripcion("Cedula de extranjeria").build();
 
@@ -89,7 +93,7 @@ class TiposIdentificacionServiceImplTest {
         when(repository.findById(1)).thenReturn(Optional.of(entity));
         when(repository.save(any(TiposIdentificacion.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        TiposIdentificacionDTO dto = new TiposIdentificacionDTO(1, "TI", "Tarjeta de identidad");
+        TiposIdentificacionDTO dto = new TiposIdentificacionDTO(1, "TI", "Tarjeta de identidad", null, null);
         TiposIdentificacionDTO resultado = service.update(1, dto);
 
         assertThat(resultado.abreviatura()).isEqualTo("TI");

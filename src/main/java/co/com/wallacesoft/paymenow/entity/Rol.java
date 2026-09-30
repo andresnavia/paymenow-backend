@@ -6,23 +6,23 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "tipos_identificacion")
+@Table(name = "rol")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TiposIdentificacion {
+public class Rol {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_TIID")
-    private Integer idTiid;
+    @Column(name = "ID_ROL")
+    private Integer idRol;
 
-    @Column(name = "ABREVIATURA", nullable = false, length = 10)
-    private String abreviatura;
+    @Column(name = "NOMBRE", nullable = false, length = 50)
+    private String nombre;
 
-    @Column(name = "DESCRIPCION", length = 200)
+    @Column(name = "DESCRIPCION", length = 500)
     private String descripcion;
 
     @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)

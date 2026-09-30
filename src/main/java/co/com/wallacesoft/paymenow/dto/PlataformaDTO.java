@@ -2,6 +2,8 @@ package co.com.wallacesoft.paymenow.dto;
 
 import jakarta.validation.constraints.*;
 
+import java.time.LocalDate;
+
 public record PlataformaDTO(
         Integer idPlat,
 
@@ -18,6 +20,11 @@ public record PlataformaDTO(
 
         @NotNull(message = "El valor es obligatorio")
         @Min(value = 0, message = "El valor no puede ser negativo")
-        Integer valor
+        Integer valor,
+
+        @Pattern(regexp = "[SN]", message = "Activo debe ser 'S' o 'N'")
+        String activo,
+
+        LocalDate fechaCreacion
 ) {
 }

@@ -9,6 +9,7 @@ import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
 import co.com.wallacesoft.paymenow.repository.PersonaRepository;
 import co.com.wallacesoft.paymenow.repository.TiposIdentificacionRepository;
 import co.com.wallacesoft.paymenow.service.impl.PersonaServiceImpl;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +39,9 @@ class PersonaServiceImplTest {
     @Mock
     private TiposIdentificacionRepository tiposIdentificacionRepository;
 
+    @Mock
+    private EntityManager entityManager;
+
     @InjectMocks
     private PersonaServiceImpl service;
 
@@ -61,7 +65,7 @@ class PersonaServiceImplTest {
                 .build();
 
         dto = new PersonaDTO(null, "Juan", null, "Perez", null, "M",
-                LocalDate.of(1990, 5, 10), 1, "CC", "123456", "juan@correo.com");
+                LocalDate.of(1990, 5, 10), 1, "CC", "123456", "juan@correo.com", null, null, null, null);
     }
 
     @Test
@@ -135,7 +139,7 @@ class PersonaServiceImplTest {
         when(personaRepository.existsByIdentificacion("999")).thenReturn(true);
 
         PersonaDTO dtoConNuevaIdentificacion = new PersonaDTO(1, "Juan", null, "Perez", null, "M",
-                LocalDate.of(1990, 5, 10), 1, "CC", "999", "juan@correo.com");
+                LocalDate.of(1990, 5, 10), 1, "CC", "999", "juan@correo.com", null, null, null, null);
 
         assertThatThrownBy(() -> service.update(1, dtoConNuevaIdentificacion))
                 .isInstanceOf(BusinessException.class);
@@ -150,7 +154,7 @@ class PersonaServiceImplTest {
         when(personaRepository.save(any(Persona.class))).thenAnswer(inv -> inv.getArgument(0));
 
         PersonaDTO dtoActualizado = new PersonaDTO(1, "Juan Carlos", null, "Perez", null, "M",
-                LocalDate.of(1990, 5, 10), 1, "CC", "123456", "juan@correo.com");
+                LocalDate.of(1990, 5, 10), 1, "CC", "123456", "juan@correo.com", null, null, null, null);
 
         PersonaDTO resultado = service.update(1, dtoActualizado);
 

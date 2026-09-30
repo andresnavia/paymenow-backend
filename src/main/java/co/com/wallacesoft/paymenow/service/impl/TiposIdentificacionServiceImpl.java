@@ -5,9 +5,11 @@ import co.com.wallacesoft.paymenow.entity.TiposIdentificacion;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
 import co.com.wallacesoft.paymenow.repository.TiposIdentificacionRepository;
 import co.com.wallacesoft.paymenow.service.TiposIdentificacionService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -17,6 +19,7 @@ import java.util.List;
 public class TiposIdentificacionServiceImpl implements TiposIdentificacionService {
 
     private final TiposIdentificacionRepository repository;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -35,8 +38,11 @@ public class TiposIdentificacionServiceImpl implements TiposIdentificacionServic
         TiposIdentificacion entity = TiposIdentificacion.builder()
                 .abreviatura(dto.abreviatura())
                 .descripcion(dto.descripcion())
+                .activo(StringUtils.hasText(dto.activo()) ? dto.activo() : "S")
                 .build();
-        return toDTO(repository.save(entity));
+        TiposIdentificacion guardado = repository.save(entity);
+        entityManager.refresh(guardado);
+        return toDTO(guardado);
     }
 
     @Override
@@ -44,6 +50,7 @@ public class TiposIdentificacionServiceImpl implements TiposIdentificacionServic
         TiposIdentificacion entity = getEntityOrThrow(id);
         entity.setAbreviatura(dto.abreviatura());
         entity.setDescripcion(dto.descripcion());
+        entity.setActivo(StringUtils.hasText(dto.activo()) ? dto.activo() : entity.getActivo());
         return toDTO(repository.save(entity));
     }
 
@@ -59,6 +66,7 @@ public class TiposIdentificacionServiceImpl implements TiposIdentificacionServic
     }
 
     private TiposIdentificacionDTO toDTO(TiposIdentificacion entity) {
-        return new TiposIdentificacionDTO(entity.getIdTiid(), entity.getAbreviatura(), entity.getDescripcion());
+        return new TiposIdentificacionDTO(entity.getIdTiid(), entity.getAbreviatura(), entity.getDescripcion(),
+                entity.getActivo(), entity.getFechaCreacion());
     }
 }

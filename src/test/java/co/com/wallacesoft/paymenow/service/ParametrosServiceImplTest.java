@@ -5,6 +5,7 @@ import co.com.wallacesoft.paymenow.entity.Parametros;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
 import co.com.wallacesoft.paymenow.repository.ParametrosRepository;
 import co.com.wallacesoft.paymenow.service.impl.ParametrosServiceImpl;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,6 +26,9 @@ class ParametrosServiceImplTest {
 
     @Mock
     private ParametrosRepository repository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private ParametrosServiceImpl service;
@@ -59,7 +63,7 @@ class ParametrosServiceImplTest {
         when(repository.findById(1)).thenReturn(Optional.of(entity));
         when(repository.save(any(Parametros.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        ParametrosDTO dto = new ParametrosDTO(1, "DIAS_GRACIA", "Actualizado", "5");
+        ParametrosDTO dto = new ParametrosDTO(1, "DIAS_GRACIA", "Actualizado", "5", null);
         ParametrosDTO resultado = service.update(1, dto);
 
         assertThat(resultado.valor()).isEqualTo("5");

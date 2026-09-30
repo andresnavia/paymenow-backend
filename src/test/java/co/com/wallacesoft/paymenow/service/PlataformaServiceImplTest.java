@@ -6,6 +6,7 @@ import co.com.wallacesoft.paymenow.entity.Plataforma;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
 import co.com.wallacesoft.paymenow.repository.PlataformaRepository;
 import co.com.wallacesoft.paymenow.service.impl.PlataformaServiceImpl;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,9 @@ class PlataformaServiceImplTest {
 
     @Mock
     private PlataformaRepository repository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private PlataformaServiceImpl service;
@@ -63,7 +67,7 @@ class PlataformaServiceImplTest {
 
     @Test
     void create_deberiaGuardarYRetornarDTO() {
-        PlataformaDTO dto = new PlataformaDTO(null, "Disney+", "Streaming Disney", 4, 30000);
+        PlataformaDTO dto = new PlataformaDTO(null, "Disney+", "Streaming Disney", 4, 30000, null, null);
         Plataforma guardado = Plataforma.builder()
                 .idPlat(2).nombre("Disney+").descripcion("Streaming Disney")
                 .cantidadCuentas(4).valor(30000).build();
@@ -82,7 +86,7 @@ class PlataformaServiceImplTest {
         when(repository.findById(1)).thenReturn(Optional.of(entity));
         when(repository.save(any(Plataforma.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        PlataformaDTO dto = new PlataformaDTO(1, "Netflix Premium", "Plan 4K", 4, 55000);
+        PlataformaDTO dto = new PlataformaDTO(1, "Netflix Premium", "Plan 4K", 4, 55000, null, null);
         PlataformaDTO resultado = service.update(1, dto);
 
         assertThat(resultado.nombre()).isEqualTo("Netflix Premium");

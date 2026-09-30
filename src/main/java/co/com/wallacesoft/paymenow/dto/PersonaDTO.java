@@ -40,6 +40,17 @@ public record PersonaDTO(
         @NotBlank(message = "El email es obligatorio")
         @Email(message = "El email no tiene un formato valido")
         @Size(max = 70)
-        String email
+        String email,
+
+        @Size(max = 20)
+        String telefono,
+
+        @Size(max = 20)
+        String celular,
+
+        @Pattern(regexp = "[SN]", message = "Activo debe ser 'S' o 'N'")
+        String activo,
+
+        LocalDate fechaCreacion
 ) {
 }

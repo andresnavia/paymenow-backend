@@ -6,24 +6,22 @@ import lombok.*;
 import java.time.LocalDate;
 
 @Entity
-@Table(name = "tipos_identificacion")
+@Table(name = "usuario")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TiposIdentificacion {
+public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ID_TIID")
-    private Integer idTiid;
+    @Column(name = "ID_USUA")
+    private Integer idUsua;
 
-    @Column(name = "ABREVIATURA", nullable = false, length = 10)
-    private String abreviatura;
-
-    @Column(name = "DESCRIPCION", length = 200)
-    private String descripcion;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_PERS", nullable = false)
+    private Persona persona;
 
     @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)
     private LocalDate fechaCreacion;
@@ -31,4 +29,11 @@ public class TiposIdentificacion {
     @Builder.Default
     @Column(name = "ACTIVO", nullable = false, length = 1)
     private String activo = "S";
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "ID_ROL", nullable = false)
+    private Rol rol;
+
+    @Column(name = "ID_FIREBASE", nullable = false, length = 200)
+    private String idFirebase;
 }

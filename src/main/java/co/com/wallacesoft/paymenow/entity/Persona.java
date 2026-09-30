@@ -41,9 +41,22 @@ public class Persona {
     @JoinColumn(name = "ID_TIID", nullable = false)
     private TiposIdentificacion tipoIdentificacion;
 
-    @Column(name = "IDENTIFICACION", nullable = false, length = 20, unique = true)
+    @Column(name = "IDENTIFICACION", nullable = false, length = 20)
     private String identificacion;
 
     @Column(name = "EMAIL", nullable = false, length = 70)
     private String email;
+
+    @Column(name = "TELEFONO", length = 20)
+    private String telefono;
+
+    @Column(name = "CELULAR", length = 20)
+    private String celular;
+
+    @Builder.Default
+    @Column(name = "ACTIVO", nullable = false, length = 1)
+    private String activo = "S";
+
+    @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)
+    private LocalDate fechaCreacion;
 }

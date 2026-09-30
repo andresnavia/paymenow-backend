@@ -1,55 +1,56 @@
 package co.com.wallacesoft.paymenow.service.impl;
 
-import co.com.wallacesoft.paymenow.dto.ParametrosDTO;
-import co.com.wallacesoft.paymenow.entity.Parametros;
+import co.com.wallacesoft.paymenow.dto.RolDTO;
+import co.com.wallacesoft.paymenow.entity.Rol;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
-import co.com.wallacesoft.paymenow.repository.ParametrosRepository;
-import co.com.wallacesoft.paymenow.service.ParametrosService;
+import co.com.wallacesoft.paymenow.repository.RolRepository;
+import co.com.wallacesoft.paymenow.service.RolService;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class ParametrosServiceImpl implements ParametrosService {
+public class RolServiceImpl implements RolService {
 
-    private final ParametrosRepository repository;
+    private final RolRepository repository;
     private final EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
-    public List<ParametrosDTO> findAll() {
+    public List<RolDTO> findAll() {
         return repository.findAll().stream().map(this::toDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public ParametrosDTO findById(Integer id) {
+    public RolDTO findById(Integer id) {
         return toDTO(getEntityOrThrow(id));
     }
 
     @Override
-    public ParametrosDTO create(ParametrosDTO dto) {
-        Parametros entity = Parametros.builder()
+    public RolDTO create(RolDTO dto) {
+        Rol entity = Rol.builder()
                 .nombre(dto.nombre())
                 .descripcion(dto.descripcion())
-                .valor(dto.valor())
+                .activo(StringUtils.hasText(dto.activo()) ? dto.activo() : "S")
                 .build();
-        Parametros guardado = repository.save(entity);
+        Rol guardado = repository.save(entity);
         entityManager.refresh(guardado);
         return toDTO(guardado);
     }
 
     @Override
-    public ParametrosDTO update(Integer id, ParametrosDTO dto) {
-        Parametros entity = getEntityOrThrow(id);
+    public RolDTO update(Integer id, RolDTO dto) {
+        Rol entity = getEntityOrThrow(id);
         entity.setNombre(dto.nombre());
         entity.setDescripcion(dto.descripcion());
-        entity.setValor(dto.valor());
+        entity.setActivo(StringUtils.hasText(dto.activo()) ? dto.activo() : entity.getActivo());
         return toDTO(repository.save(entity));
     }
 
@@ -58,13 +59,13 @@ public class ParametrosServiceImpl implements ParametrosService {
         repository.delete(getEntityOrThrow(id));
     }
 
-    private Parametros getEntityOrThrow(Integer id) {
+    private Rol getEntityOrThrow(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Parametro", id));
+                .orElseThrow(() -> new ResourceNotFoundException("Rol", id));
     }
 
-    private ParametrosDTO toDTO(Parametros entity) {
-        return new ParametrosDTO(entity.getIdPara(), entity.getNombre(), entity.getDescripcion(), entity.getValor(),
-                entity.getFechaCreacion());
+    private RolDTO toDTO(Rol entity) {
+        return new RolDTO(entity.getIdRol(), entity.getNombre(), entity.getDescripcion(),
+                entity.getActivo(), entity.getFechaCreacion());
     }
 }
