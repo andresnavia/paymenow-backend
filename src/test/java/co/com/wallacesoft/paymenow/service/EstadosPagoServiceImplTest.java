@@ -5,6 +5,8 @@ import co.com.wallacesoft.paymenow.entity.EstadosPago;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
 import co.com.wallacesoft.paymenow.repository.EstadosPagoRepository;
 import co.com.wallacesoft.paymenow.service.impl.EstadosPagoServiceImpl;
+import jakarta.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +28,12 @@ class EstadosPagoServiceImplTest {
     @Mock
     private EstadosPagoRepository repository;
 
+    @Mock
+    private EntityManager entityManager;
+
     @InjectMocks
     private EstadosPagoServiceImpl service;
+
 
     private EstadosPago entity;
 
@@ -56,7 +62,7 @@ class EstadosPagoServiceImplTest {
 
     @Test
     void create_deberiaGuardarYRetornarDTO() {
-        EstadosPagoDTO dto = new EstadosPagoDTO(null, "PENDIENTE", "Pago aun no realizado");
+        EstadosPagoDTO dto = new EstadosPagoDTO(null, "PENDIENTE", "Pago aun no realizado", null);
         EstadosPago guardado = EstadosPago.builder().idEspa(2).nombre("PENDIENTE").descripcion("Pago aun no realizado").build();
 
         when(repository.save(any(EstadosPago.class))).thenReturn(guardado);

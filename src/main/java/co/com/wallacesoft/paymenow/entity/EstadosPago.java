@@ -1,5 +1,7 @@
 package co.com.wallacesoft.paymenow.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -22,4 +24,7 @@ public class EstadosPago {
 
     @Column(name = "DESCRIPCION", length = 200)
     private String descripcion;
+
+    @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)
+    private LocalDate fechaCreacion;
 }

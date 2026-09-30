@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PersonaDTO;
 import co.com.wallacesoft.paymenow.entity.Persona;
 import co.com.wallacesoft.paymenow.entity.TiposIdentificacion;
@@ -164,5 +165,14 @@ class PersonaServiceImplTest {
         service.delete(1);
 
         verify(personaRepository).delete(persona);
+    }
+
+    @Test
+    void count_deberiaRetornarCantidadDeRegistros() {
+        when(personaRepository.count()).thenReturn(7L);
+
+        ContadorDTO resultado = service.count();
+
+        assertThat(resultado.cantidad()).isEqualTo(7);
     }
 }

@@ -1,5 +1,7 @@
 package co.com.wallacesoft.paymenow.entity;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,4 +34,7 @@ public class CuentaAsociada {
     @Builder.Default
     @Column(name = "NOTIFICA", nullable = false, length = 1)
     private String notifica = "S";
+
+    @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)
+    private LocalDate fechaCreacion;
 }

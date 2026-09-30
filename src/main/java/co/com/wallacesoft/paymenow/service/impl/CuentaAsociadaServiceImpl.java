@@ -10,6 +10,7 @@ import co.com.wallacesoft.paymenow.repository.CuentaAsociadaRepository;
 import co.com.wallacesoft.paymenow.repository.CuentaRepository;
 import co.com.wallacesoft.paymenow.repository.PersonaRepository;
 import co.com.wallacesoft.paymenow.service.CuentaAsociadaService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,6 +26,7 @@ public class CuentaAsociadaServiceImpl implements CuentaAsociadaService {
     private final CuentaAsociadaRepository cuentaAsociadaRepository;
     private final CuentaRepository cuentaRepository;
     private final PersonaRepository personaRepository;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -59,8 +61,9 @@ public class CuentaAsociadaServiceImpl implements CuentaAsociadaService {
                 .activo(StringUtils.hasText(dto.activo()) ? dto.activo() : "S")
                 .notifica(StringUtils.hasText(dto.notifica()) ? dto.notifica() : "S")
                 .build();
-
-        return toDTO(cuentaAsociadaRepository.save(entity));
+        CuentaAsociada guardado = cuentaAsociadaRepository.save(entity);
+        entityManager.refresh(guardado);
+        return toDTO(guardado);
     }
 
     @Override
@@ -99,7 +102,7 @@ public class CuentaAsociadaServiceImpl implements CuentaAsociadaService {
                 entity.getCuenta().getIdCuen(),
                 entity.getPersona().getIdPers(),
                 entity.getActivo(),
-                entity.getNotifica()
-        );
+                entity.getNotifica(),
+                entity.getFechaCreacion());
     }
 }

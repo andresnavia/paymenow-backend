@@ -33,4 +33,7 @@ public class Cuenta {
 
     @Column(name = "FECHA_PAGO", nullable = false)
     private LocalDate fechaPago;
+
+    @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)
+    private LocalDate fechaCreacion;
 }

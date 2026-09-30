@@ -14,6 +14,8 @@ public record PagosDTO(
         Integer idCuas,
 
         @NotNull(message = "El estado de pago es obligatorio")
-        Integer idEspa
+        Integer idEspa,
+
+        LocalDate fechaCreacion
 ) {
 }

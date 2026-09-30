@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.controller;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.CuentaDTO;
 import co.com.wallacesoft.paymenow.service.CuentaService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -45,4 +46,10 @@ public class CuentaController {
     public void delete(@PathVariable Integer id) {
         service.delete(id);
     }
+
+    @GetMapping("/contar")
+    public ResponseEntity<ContadorDTO> count() {
+        return ResponseEntity.ok(service.count());
+    }
+
 }

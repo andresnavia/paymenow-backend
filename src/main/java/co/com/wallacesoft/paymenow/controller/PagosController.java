@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.controller;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PagosDTO;
 import co.com.wallacesoft.paymenow.service.PagosService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,6 +39,11 @@ public class PagosController {
     @PutMapping("/{id}")
     public ResponseEntity<PagosDTO> update(@PathVariable Integer id, @Valid @RequestBody PagosDTO dto) {
         return ResponseEntity.ok(service.update(id, dto));
+    }
+
+    @GetMapping("/contar")
+    public ResponseEntity<ContadorDTO> count() {
+        return ResponseEntity.ok(service.count());
     }
 
     @DeleteMapping("/{id}")

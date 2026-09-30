@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.controller;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PlataformaDTO;
 import co.com.wallacesoft.paymenow.service.PlataformaService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +28,11 @@ public class PlataformaController {
     @GetMapping("/{id}")
     public ResponseEntity<PlataformaDTO> findById(@PathVariable Integer id) {
         return ResponseEntity.ok(service.findById(id));
+    }
+
+    @GetMapping("/contar")
+    public ResponseEntity<ContadorDTO> count() {
+        return ResponseEntity.ok(service.count());
     }
 
     @PostMapping

@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PagosDTO;
 import co.com.wallacesoft.paymenow.entity.CuentaAsociada;
 import co.com.wallacesoft.paymenow.entity.EstadosPago;
@@ -9,6 +10,8 @@ import co.com.wallacesoft.paymenow.repository.CuentaAsociadaRepository;
 import co.com.wallacesoft.paymenow.repository.EstadosPagoRepository;
 import co.com.wallacesoft.paymenow.repository.PagosRepository;
 import co.com.wallacesoft.paymenow.service.impl.PagosServiceImpl;
+import jakarta.persistence.EntityManager;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +39,9 @@ class PagosServiceImplTest {
     @Mock
     private EstadosPagoRepository estadosPagoRepository;
 
+    @Mock
+    private EntityManager entityManager;
+
     @InjectMocks
     private PagosServiceImpl service;
 
@@ -57,7 +63,7 @@ class PagosServiceImplTest {
 
     @Test
     void create_conReferenciasValidas_deberiaCrearPago() {
-        PagosDTO dto = new PagosDTO(null, LocalDate.of(2026, 9, 1), 1, 1);
+        PagosDTO dto = new PagosDTO(null, LocalDate.of(2026, 9, 1), 1, 1, null);
 
         when(cuentaAsociadaRepository.findById(1)).thenReturn(Optional.of(cuentaAsociada));
         when(estadosPagoRepository.findById(1)).thenReturn(Optional.of(estadoPago));
@@ -72,7 +78,7 @@ class PagosServiceImplTest {
 
     @Test
     void create_cuandoCuentaAsociadaNoExiste_deberiaLanzarExcepcion() {
-        PagosDTO dto = new PagosDTO(null, LocalDate.of(2026, 9, 1), 99, 1);
+        PagosDTO dto = new PagosDTO(null, LocalDate.of(2026, 9, 1), 99, 1, null);
 
         when(cuentaAsociadaRepository.findById(99)).thenReturn(Optional.empty());
 
@@ -84,7 +90,7 @@ class PagosServiceImplTest {
 
     @Test
     void create_cuandoEstadoPagoNoExiste_deberiaLanzarExcepcion() {
-        PagosDTO dto = new PagosDTO(null, LocalDate.of(2026, 9, 1), 1, 99);
+        PagosDTO dto = new PagosDTO(null, LocalDate.of(2026, 9, 1), 1, 99, null);
 
         when(cuentaAsociadaRepository.findById(1)).thenReturn(Optional.of(cuentaAsociada));
         when(estadosPagoRepository.findById(99)).thenReturn(Optional.empty());
@@ -98,7 +104,7 @@ class PagosServiceImplTest {
     @Test
     void update_deberiaActualizarFechaYEstado() {
         EstadosPago nuevoEstado = EstadosPago.builder().idEspa(2).nombre("VENCIDO").build();
-        PagosDTO dto = new PagosDTO(1, LocalDate.of(2026, 9, 10), 1, 2);
+        PagosDTO dto = new PagosDTO(1, LocalDate.of(2026, 9, 10), 1, 2, null);
 
         when(pagosRepository.findById(1)).thenReturn(Optional.of(pago));
         when(cuentaAsociadaRepository.findById(1)).thenReturn(Optional.of(cuentaAsociada));
@@ -118,5 +124,14 @@ class PagosServiceImplTest {
         service.delete(1);
 
         verify(pagosRepository).delete(pago);
+    }
+
+    @Test
+    void count_deberiaRetornarCantidadDeRegistros() {
+        when(pagosRepository.count()).thenReturn(10L);
+
+        ContadorDTO resultado = service.count();
+
+        assertThat(resultado.cantidad()).isEqualTo(10);
     }
 }

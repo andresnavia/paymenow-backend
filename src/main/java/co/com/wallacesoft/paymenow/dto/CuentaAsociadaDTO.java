@@ -1,5 +1,7 @@
 package co.com.wallacesoft.paymenow.dto;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
@@ -16,6 +18,8 @@ public record CuentaAsociadaDTO(
         String activo,
 
         @Pattern(regexp = "[SN]", message = "Notifica debe ser 'S' o 'N'")
-        String notifica
+        String notifica,
+
+        LocalDate fechaCreacion
 ) {
 }

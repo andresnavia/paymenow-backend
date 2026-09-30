@@ -5,6 +5,7 @@ import co.com.wallacesoft.paymenow.entity.EstadosPago;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
 import co.com.wallacesoft.paymenow.repository.EstadosPagoRepository;
 import co.com.wallacesoft.paymenow.service.EstadosPagoService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +18,7 @@ import java.util.List;
 public class EstadosPagoServiceImpl implements EstadosPagoService {
 
     private final EstadosPagoRepository repository;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -36,7 +38,9 @@ public class EstadosPagoServiceImpl implements EstadosPagoService {
                 .nombre(dto.nombre())
                 .descripcion(dto.descripcion())
                 .build();
-        return toDTO(repository.save(entity));
+        EstadosPago guardado = repository.save(entity);
+        entityManager.refresh(guardado);
+        return toDTO(guardado);
     }
 
     @Override
@@ -58,6 +62,6 @@ public class EstadosPagoServiceImpl implements EstadosPagoService {
     }
 
     private EstadosPagoDTO toDTO(EstadosPago entity) {
-        return new EstadosPagoDTO(entity.getIdEspa(), entity.getNombre(), entity.getDescripcion());
+        return new EstadosPagoDTO(entity.getIdEspa(), entity.getNombre(), entity.getDescripcion(), entity.getFechaCreacion());
     }
 }

@@ -11,6 +11,7 @@ import co.com.wallacesoft.paymenow.repository.CuentaAsociadaRepository;
 import co.com.wallacesoft.paymenow.repository.CuentaRepository;
 import co.com.wallacesoft.paymenow.repository.PersonaRepository;
 import co.com.wallacesoft.paymenow.service.impl.CuentaAsociadaServiceImpl;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,6 +40,9 @@ class CuentaAsociadaServiceImplTest {
     @Mock
     private PersonaRepository personaRepository;
 
+    @Mock
+    private EntityManager entityManager;
+
     @InjectMocks
     private CuentaAsociadaServiceImpl service;
 
@@ -59,7 +63,7 @@ class CuentaAsociadaServiceImplTest {
 
     @Test
     void create_cuandoHayCupoDisponible_deberiaCrear() {
-        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S");
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null);
 
         when(cuentaRepository.findById(1)).thenReturn(Optional.of(cuenta));
         when(personaRepository.findById(2)).thenReturn(Optional.of(persona));
@@ -78,7 +82,7 @@ class CuentaAsociadaServiceImplTest {
 
     @Test
     void create_cuandoSeAlcanzoElMaximoDePantallas_deberiaLanzarBusinessException() {
-        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S");
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null);
 
         CuentaAsociada activo1 = CuentaAsociada.builder().idCuas(10).cuenta(cuenta)
                 .persona(Persona.builder().idPers(3).build()).activo("S").notifica("S").build();
@@ -99,7 +103,7 @@ class CuentaAsociadaServiceImplTest {
 
     @Test
     void create_cuandoCuentaAsociadaInactivaNoCuentaParaElLimite_deberiaCrear() {
-        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S");
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null);
 
         CuentaAsociada activo1 = CuentaAsociada.builder().idCuas(10).cuenta(cuenta)
                 .persona(Persona.builder().idPers(3).build()).activo("S").notifica("S").build();
@@ -120,7 +124,7 @@ class CuentaAsociadaServiceImplTest {
 
     @Test
     void create_cuandoCuentaNoExiste_deberiaLanzarResourceNotFound() {
-        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 99, 2, "S", "S");
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 99, 2, "S", "S", null);
 
         when(cuentaRepository.findById(99)).thenReturn(Optional.empty());
 

@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service.impl;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.CuentaDTO;
 import co.com.wallacesoft.paymenow.entity.Cuenta;
 import co.com.wallacesoft.paymenow.entity.Persona;
@@ -9,6 +10,7 @@ import co.com.wallacesoft.paymenow.repository.CuentaRepository;
 import co.com.wallacesoft.paymenow.repository.PersonaRepository;
 import co.com.wallacesoft.paymenow.repository.PlataformaRepository;
 import co.com.wallacesoft.paymenow.service.CuentaService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +26,7 @@ public class CuentaServiceImpl implements CuentaService {
     private final CuentaRepository cuentaRepository;
     private final PlataformaRepository plataformaRepository;
     private final PersonaRepository personaRepository;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -38,6 +41,11 @@ public class CuentaServiceImpl implements CuentaService {
     }
 
     @Override
+    public ContadorDTO count() {
+        return new ContadorDTO(cuentaRepository.count());
+    }
+
+    @Override
     public CuentaDTO create(CuentaDTO dto) {
         Plataforma plataforma = getPlataformaOrThrow(dto.idPlat());
         Persona propietario = getPersonaOrThrow(dto.idPers());
@@ -49,7 +57,9 @@ public class CuentaServiceImpl implements CuentaService {
                 .fechaPago(dto.fechaPago())
                 .build();
 
-        return toDTO(cuentaRepository.save(entity));
+        Cuenta guardado = cuentaRepository.save(entity);
+        entityManager.refresh(guardado);
+        return toDTO(guardado);
     }
 
     @Override
@@ -88,7 +98,7 @@ public class CuentaServiceImpl implements CuentaService {
                 entity.getPlataforma().getIdPlat(),
                 entity.getPropietario().getIdPers(),
                 entity.getActivo(),
-                entity.getFechaPago()
-        );
+                entity.getFechaPago(),
+                entity.getFechaCreacion());
     }
 }

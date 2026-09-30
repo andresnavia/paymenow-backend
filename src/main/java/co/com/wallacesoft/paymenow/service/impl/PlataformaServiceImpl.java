@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service.impl;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PlataformaDTO;
 import co.com.wallacesoft.paymenow.entity.Plataforma;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
@@ -22,6 +23,11 @@ public class PlataformaServiceImpl implements PlataformaService {
     @Transactional(readOnly = true)
     public List<PlataformaDTO> findAll() {
         return repository.findAll().stream().map(this::toDTO).toList();
+    }
+
+    @Override
+    public ContadorDTO count() {
+        return new ContadorDTO(repository.count());
     }
 
     @Override

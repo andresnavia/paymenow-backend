@@ -29,4 +29,8 @@ public class Pagos {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "ID_ESPA", nullable = false)
     private EstadosPago estadoPago;
+
+    @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)
+    private LocalDate fechaCreacion;
+
 }

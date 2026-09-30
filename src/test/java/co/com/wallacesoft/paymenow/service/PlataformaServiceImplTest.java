@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PlataformaDTO;
 import co.com.wallacesoft.paymenow.entity.Plataforma;
 import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
@@ -95,5 +96,14 @@ class PlataformaServiceImplTest {
         service.delete(1);
 
         verify(repository).delete(entity);
+    }
+
+    @Test
+    void count_deberiaRetornarCantidadDeRegistros() {
+        when(repository.count()).thenReturn(5L);
+
+        ContadorDTO resultado = service.count();
+
+        assertThat(resultado.cantidad()).isEqualTo(5);
     }
 }

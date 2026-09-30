@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service.impl;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PersonaDTO;
 import co.com.wallacesoft.paymenow.entity.Persona;
 import co.com.wallacesoft.paymenow.entity.TiposIdentificacion;
@@ -9,13 +10,13 @@ import co.com.wallacesoft.paymenow.repository.PersonaRepository;
 import co.com.wallacesoft.paymenow.repository.TiposIdentificacionRepository;
 import co.com.wallacesoft.paymenow.service.PersonaService;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +47,11 @@ public class PersonaServiceImpl implements PersonaService {
     @Transactional(readOnly = true)
     public PersonaDTO findById(Integer id) {
         return toDTO(getEntityOrThrow(id));
+    }
+
+    @Override
+    public ContadorDTO count() {
+        return new ContadorDTO(personaRepository.count());
     }
 
     @Override

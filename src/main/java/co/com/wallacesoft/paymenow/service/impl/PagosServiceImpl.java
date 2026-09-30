@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service.impl;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PagosDTO;
 import co.com.wallacesoft.paymenow.entity.CuentaAsociada;
 import co.com.wallacesoft.paymenow.entity.EstadosPago;
@@ -9,6 +10,7 @@ import co.com.wallacesoft.paymenow.repository.CuentaAsociadaRepository;
 import co.com.wallacesoft.paymenow.repository.EstadosPagoRepository;
 import co.com.wallacesoft.paymenow.repository.PagosRepository;
 import co.com.wallacesoft.paymenow.service.PagosService;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ public class PagosServiceImpl implements PagosService {
     private final PagosRepository pagosRepository;
     private final CuentaAsociadaRepository cuentaAsociadaRepository;
     private final EstadosPagoRepository estadosPagoRepository;
+    private final EntityManager entityManager;
 
     @Override
     @Transactional(readOnly = true)
@@ -37,6 +40,11 @@ public class PagosServiceImpl implements PagosService {
     }
 
     @Override
+    public ContadorDTO count() {
+        return new ContadorDTO(pagosRepository.count());
+    }
+
+    @Override
     public PagosDTO create(PagosDTO dto) {
         CuentaAsociada cuentaAsociada = getCuentaAsociadaOrThrow(dto.idCuas());
         EstadosPago estadoPago = getEstadoPagoOrThrow(dto.idEspa());
@@ -46,8 +54,9 @@ public class PagosServiceImpl implements PagosService {
                 .cuentaAsociada(cuentaAsociada)
                 .estadoPago(estadoPago)
                 .build();
-
-        return toDTO(pagosRepository.save(entity));
+        Pagos guardado = pagosRepository.save(entity);
+        entityManager.refresh(guardado);
+        return toDTO(guardado);
     }
 
     @Override
@@ -84,7 +93,7 @@ public class PagosServiceImpl implements PagosService {
                 entity.getIdPago(),
                 entity.getFechaPago(),
                 entity.getCuentaAsociada().getIdCuas(),
-                entity.getEstadoPago().getIdEspa()
-        );
+                entity.getEstadoPago().getIdEspa(),
+                entity.getFechaCreacion());
     }
 }

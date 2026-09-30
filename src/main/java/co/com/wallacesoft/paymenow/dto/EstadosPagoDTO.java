@@ -1,5 +1,7 @@
 package co.com.wallacesoft.paymenow.dto;
 
+import java.time.LocalDate;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
@@ -11,6 +13,8 @@ public record EstadosPagoDTO(
         String nombre,
 
         @Size(max = 200)
-        String descripcion
+        String descripcion,
+
+        LocalDate fechaCreacion
 ) {
 }

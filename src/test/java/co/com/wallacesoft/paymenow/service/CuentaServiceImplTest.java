@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service;
 
+import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.CuentaDTO;
 import co.com.wallacesoft.paymenow.entity.Cuenta;
 import co.com.wallacesoft.paymenow.entity.Persona;
@@ -9,6 +10,7 @@ import co.com.wallacesoft.paymenow.repository.CuentaRepository;
 import co.com.wallacesoft.paymenow.repository.PersonaRepository;
 import co.com.wallacesoft.paymenow.repository.PlataformaRepository;
 import co.com.wallacesoft.paymenow.service.impl.CuentaServiceImpl;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +38,9 @@ class CuentaServiceImplTest {
     @Mock
     private PersonaRepository personaRepository;
 
+    @Mock
+    private EntityManager entityManager;
+
     @InjectMocks
     private CuentaServiceImpl service;
 
@@ -59,7 +64,7 @@ class CuentaServiceImplTest {
 
     @Test
     void create_conReferenciasValidas_deberiaCrearCuenta() {
-        CuentaDTO dto = new CuentaDTO(null, 1, 1, "S", LocalDate.of(2026, 9, 15));
+        CuentaDTO dto = new CuentaDTO(null, 1, 1, "S", LocalDate.of(2026, 9, 15), null);
 
         when(plataformaRepository.findById(1)).thenReturn(Optional.of(plataforma));
         when(personaRepository.findById(1)).thenReturn(Optional.of(propietario));
@@ -74,7 +79,7 @@ class CuentaServiceImplTest {
 
     @Test
     void create_cuandoPlataformaNoExiste_deberiaLanzarExcepcion() {
-        CuentaDTO dto = new CuentaDTO(null, 99, 1, "S", LocalDate.of(2026, 9, 15));
+        CuentaDTO dto = new CuentaDTO(null, 99, 1, "S", LocalDate.of(2026, 9, 15), null);
 
         when(plataformaRepository.findById(99)).thenReturn(Optional.empty());
 
@@ -86,7 +91,7 @@ class CuentaServiceImplTest {
 
     @Test
     void create_cuandoPropietarioNoExiste_deberiaLanzarExcepcion() {
-        CuentaDTO dto = new CuentaDTO(null, 1, 99, "S", LocalDate.of(2026, 9, 15));
+        CuentaDTO dto = new CuentaDTO(null, 1, 99, "S", LocalDate.of(2026, 9, 15), null);
 
         when(plataformaRepository.findById(1)).thenReturn(Optional.of(plataforma));
         when(personaRepository.findById(99)).thenReturn(Optional.empty());
@@ -99,7 +104,7 @@ class CuentaServiceImplTest {
 
     @Test
     void create_sinActivoEnDto_deberiaUsarSPorDefecto() {
-        CuentaDTO dto = new CuentaDTO(null, 1, 1, null, LocalDate.of(2026, 9, 15));
+        CuentaDTO dto = new CuentaDTO(null, 1, 1, null, LocalDate.of(2026, 9, 15), null);
 
         when(plataformaRepository.findById(1)).thenReturn(Optional.of(plataforma));
         when(personaRepository.findById(1)).thenReturn(Optional.of(propietario));
@@ -117,5 +122,14 @@ class CuentaServiceImplTest {
         service.delete(1);
 
         verify(cuentaRepository).delete(cuenta);
+    }
+
+    @Test
+    void count_deberiaRetornarCantidadDeRegistros() {
+        when(cuentaRepository.count()).thenReturn(3L);
+
+        ContadorDTO resultado = service.count();
+
+        assertThat(resultado.cantidad()).isEqualTo(3);
     }
 }
