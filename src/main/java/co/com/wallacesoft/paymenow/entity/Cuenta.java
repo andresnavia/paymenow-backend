@@ -28,7 +28,7 @@ public class Cuenta {
     private Persona propietario;
 
     @Builder.Default
-    @Column(name = "ACTIVO", nullable = false, length = 1)
+    @Column(name = "ACTIVO", nullable = false, length = 1, columnDefinition = "CHAR(1)")
     private String activo = "S";
 
     @Column(name = "FECHA_PAGO", nullable = false)

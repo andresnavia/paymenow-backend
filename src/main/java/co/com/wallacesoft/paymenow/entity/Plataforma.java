@@ -32,7 +32,7 @@ public class Plataforma {
     private Integer valor;
 
     @Builder.Default
-    @Column(name = "ACTIVO", nullable = false, length = 1)
+    @Column(name = "ACTIVO", nullable = false, length = 1, columnDefinition = "CHAR(1)")
     private String activo = "S";
 
     @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)

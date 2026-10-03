@@ -28,11 +28,11 @@ public class CuentaAsociada {
     private Persona persona;
 
     @Builder.Default
-    @Column(name = "ACTIVO", nullable = false, length = 1)
+    @Column(name = "ACTIVO", nullable = false, length = 1, columnDefinition = "CHAR(1)")
     private String activo = "S";
 
     @Builder.Default
-    @Column(name = "NOTIFICA", nullable = false, length = 1)
+    @Column(name = "NOTIFICA", nullable = false, length = 1, columnDefinition = "CHAR(1)")
     private String notifica = "S";
 
     @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)

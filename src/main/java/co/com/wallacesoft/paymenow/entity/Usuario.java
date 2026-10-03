@@ -27,7 +27,7 @@ public class Usuario {
     private LocalDate fechaCreacion;
 
     @Builder.Default
-    @Column(name = "ACTIVO", nullable = false, length = 1)
+    @Column(name = "ACTIVO", nullable = false, length = 1, columnDefinition = "CHAR(1)")
     private String activo = "S";
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)

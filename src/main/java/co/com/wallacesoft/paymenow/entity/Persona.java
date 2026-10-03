@@ -31,7 +31,7 @@ public class Persona {
     @Column(name = "SEGUNDO_APELLIDO", length = 60)
     private String segundoApellido;
 
-    @Column(name = "SEXO", nullable = false, length = 1)
+    @Column(name = "SEXO", nullable = false, length = 1, columnDefinition = "CHAR(1)")
     private String sexo;
 
     @Column(name = "FECHA_NACIMIENTO")
@@ -54,7 +54,7 @@ public class Persona {
     private String celular;
 
     @Builder.Default
-    @Column(name = "ACTIVO", nullable = false, length = 1)
+    @Column(name = "ACTIVO", nullable = false, length = 1, columnDefinition = "CHAR(1)")
     private String activo = "S";
 
     @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)
