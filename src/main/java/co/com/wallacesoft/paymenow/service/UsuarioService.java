@@ -10,4 +10,5 @@ public interface UsuarioService {
     UsuarioDTO create(UsuarioDTO dto);
     UsuarioDTO update(Integer id, UsuarioDTO dto);
     void delete(Integer id);
+    boolean existeUsuarioPersona(Integer idPers,Integer idRol);
 }

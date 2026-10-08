@@ -9,3 +9,4 @@ target/
 .settings/
 *.log
 .DS_Store
+react-wallace-firebase-adminsdk-*.json

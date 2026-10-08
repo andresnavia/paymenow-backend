@@ -111,4 +111,9 @@ public class UsuarioServiceImpl implements UsuarioService {
                 entity.getActivo(),
                 entity.getFechaCreacion());
     }
+
+    @Override
+    public boolean existeUsuarioPersona(Integer idPers, Integer idRol) {
+        return usuarioRepository.existsByPersona_IdPersAndRol_IdRol(idPers, idRol);
+    }
 }
