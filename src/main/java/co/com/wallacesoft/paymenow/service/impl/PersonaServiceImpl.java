@@ -13,6 +13,7 @@ import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -44,6 +45,12 @@ public class PersonaServiceImpl implements PersonaService {
     @Override
     public PersonaDTO findByIdentificacion(String identificacion) {
         return toDTO(getEntityByIdentificacionOrThrow(identificacion));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<PersonaDTO> buscarPorIdentificacion(String identificacion) {
+        return personaRepository.findByIdentificacion(identificacion).map(this::toDTO);
     }
 
     @Override

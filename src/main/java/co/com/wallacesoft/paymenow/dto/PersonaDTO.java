@@ -25,6 +25,7 @@ public record PersonaDTO(
         @Size(min = 1, max = 1, message = "El sexo debe ser un solo caracter (M/F)")
         String sexo,
 
+        @NotNull(message = "La fecha de nacimiento es obligatoria")
         @Past(message = "La fecha de nacimiento debe ser anterior a hoy")
         LocalDate fechaNacimiento,
 

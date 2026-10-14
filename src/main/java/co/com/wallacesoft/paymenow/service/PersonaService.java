@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PersonaService {
     List<PersonaDTO> findAll();
@@ -15,6 +16,8 @@ public interface PersonaService {
     PersonaDTO findById(Integer id);
 
     PersonaDTO findByIdentificacion(String identificacion);
+
+    Optional<PersonaDTO> buscarPorIdentificacion(String identificacion);
 
     PersonaDTO create(PersonaDTO dto);
 

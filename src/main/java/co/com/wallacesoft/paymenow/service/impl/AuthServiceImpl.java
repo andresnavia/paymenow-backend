@@ -32,9 +32,9 @@ public class AuthServiceImpl implements AuthService {
                     "Informacion del registro vacia.");
         }
         //Consultamos la persona
-        PersonaDTO personaDTO=personaService.findByIdentificacion(dto.identificacion());
-        
-        
+        //No usar findByIdentificacion: su excepcion marca la transaccion como rollback-only
+        PersonaDTO personaDTO = personaService.buscarPorIdentificacion(dto.identificacion()).orElse(null);
+
         //Creamos la persona
         if(personaDTO==null ){
             personaDTO=personaService.create(new PersonaDTO(null, dto.primerNombre(), dto.segundoNombre(),
