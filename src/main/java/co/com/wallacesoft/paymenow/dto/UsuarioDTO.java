@@ -2,6 +2,7 @@ package co.com.wallacesoft.paymenow.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -23,6 +24,12 @@ public record UsuarioDTO(
         @Pattern(regexp = "[SN]", message = "Activo debe ser 'S' o 'N'")
         String activo,
 
-        LocalDate fechaCreacion
+        LocalDate fechaCreacion,
+
+        String primerNombre,
+
+        String primerApellido,
+
+        String nombreRol
 ) {
 }

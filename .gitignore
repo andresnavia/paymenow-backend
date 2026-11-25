@@ -10,3 +10,5 @@ target/
 *.log
 .DS_Store
 react-wallace-firebase-adminsdk-*.json
+*.class
+bin/

@@ -71,7 +71,7 @@ class UsuarioServiceImplTest {
 
     @Test
     void create_conReferenciasValidas_deberiaCrearUsuario() {
-        UsuarioDTO dto = new UsuarioDTO(null, 1, 1, "firebase-token-2", "S", null);
+        UsuarioDTO dto = new UsuarioDTO(null, 1, 1, "firebase-token-2", "S", null, null, null, null);
 
         when(personaRepository.findById(1)).thenReturn(Optional.of(persona));
         when(rolRepository.findById(1)).thenReturn(Optional.of(rol));
@@ -88,7 +88,7 @@ class UsuarioServiceImplTest {
 
     @Test
     void create_cuandoPersonaNoExiste_deberiaLanzarResourceNotFound() {
-        UsuarioDTO dto = new UsuarioDTO(null, 99, 1, "firebase-token-2", "S", null);
+        UsuarioDTO dto = new UsuarioDTO(null, 99, 1, "firebase-token-2", "S", null, null, null, null);
 
         when(personaRepository.findById(99)).thenReturn(Optional.empty());
 
@@ -100,7 +100,7 @@ class UsuarioServiceImplTest {
 
     @Test
     void create_cuandoRolNoExiste_deberiaLanzarResourceNotFound() {
-        UsuarioDTO dto = new UsuarioDTO(null, 1, 99, "firebase-token-2", "S", null);
+        UsuarioDTO dto = new UsuarioDTO(null, 1, 99, "firebase-token-2", "S", null, null, null, null);
 
         when(personaRepository.findById(1)).thenReturn(Optional.of(persona));
         when(rolRepository.findById(99)).thenReturn(Optional.empty());
@@ -113,7 +113,7 @@ class UsuarioServiceImplTest {
 
     @Test
     void create_cuandoYaExisteUsuarioConMismaPersonaYRol_deberiaLanzarBusinessException() {
-        UsuarioDTO dto = new UsuarioDTO(null, 1, 1, "firebase-token-2", "S", null);
+        UsuarioDTO dto = new UsuarioDTO(null, 1, 1, "firebase-token-2", "S", null, null, null, null);
 
         when(personaRepository.findById(1)).thenReturn(Optional.of(persona));
         when(rolRepository.findById(1)).thenReturn(Optional.of(rol));
@@ -127,7 +127,7 @@ class UsuarioServiceImplTest {
 
     @Test
     void create_sinActivoEnDto_deberiaUsarSPorDefecto() {
-        UsuarioDTO dto = new UsuarioDTO(null, 1, 1, "firebase-token-2", null, null);
+        UsuarioDTO dto = new UsuarioDTO(null, 1, 1, "firebase-token-2", null, null, null, null, null);
 
         when(personaRepository.findById(1)).thenReturn(Optional.of(persona));
         when(rolRepository.findById(1)).thenReturn(Optional.of(rol));
@@ -143,7 +143,7 @@ class UsuarioServiceImplTest {
     void update_cambiandoRolAUnaCombinacionYaExistente_deberiaLanzarBusinessException() {
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
 
-        UsuarioDTO dto = new UsuarioDTO(1, 1, 2, "firebase-token-1", "S", null);
+        UsuarioDTO dto = new UsuarioDTO(1, 1, 2, "firebase-token-1", "S", null, null, null, null);
 
         when(usuarioRepository.existsByPersona_IdPersAndRol_IdRol(1, 2)).thenReturn(true);
 
@@ -160,7 +160,7 @@ class UsuarioServiceImplTest {
         when(rolRepository.findById(1)).thenReturn(Optional.of(rol));
         when(usuarioRepository.save(any(Usuario.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        UsuarioDTO dto = new UsuarioDTO(1, 1, 1, "firebase-token-actualizado", "N", null);
+        UsuarioDTO dto = new UsuarioDTO(1, 1, 1, "firebase-token-actualizado", "N", null, null, null, null);
         UsuarioDTO resultado = service.update(1, dto);
 
         assertThat(resultado.idFirebase()).isEqualTo("firebase-token-actualizado");

@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service;
 
+import co.com.wallacesoft.paymenow.security.UsuarioActual;
 import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PersonaDTO;
 import co.com.wallacesoft.paymenow.entity.Persona;
@@ -42,6 +43,9 @@ class PersonaServiceImplTest {
     @Mock
     private EntityManager entityManager;
 
+    @Mock
+    private UsuarioActual usuarioActual;
+
     @InjectMocks
     private PersonaServiceImpl service;
 
@@ -51,6 +55,7 @@ class PersonaServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        org.mockito.Mockito.lenient().when(usuarioActual.esAdmin()).thenReturn(true);
         tipo = TiposIdentificacion.builder().idTiid(1).abreviatura("CC").descripcion("Cedula").build();
 
         persona = Persona.builder()

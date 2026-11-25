@@ -1,5 +1,11 @@
 package co.com.wallacesoft.paymenow.service.impl;
 
+import co.com.wallacesoft.paymenow.dto.PerfilDTO;
+import co.com.wallacesoft.paymenow.entity.Usuario;
+import co.com.wallacesoft.paymenow.exception.ResourceNotFoundException;
+import co.com.wallacesoft.paymenow.repository.UsuarioRepository;
+import co.com.wallacesoft.paymenow.security.UsuarioActual;
+import co.com.wallacesoft.paymenow.security.UsuarioAutenticado;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +31,23 @@ public class AuthServiceImpl implements AuthService {
     private final PersonaService personaService;
     private final UsuarioService usuarioService;
     private final FirebaseAuth firebaseAuth;
+    private final UsuarioRepository usuarioRepository;
+    private final UsuarioActual usuarioActual;
+
+    @Override
+    @Transactional(readOnly = true)
+    public PerfilDTO perfilActual() {
+        UsuarioAutenticado actual = usuarioActual.get();
+        Usuario usuario = usuarioRepository.findById(actual.idUsua())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario", actual.idUsua()));
+        return new PerfilDTO(
+                usuario.getPersona().getIdPers(),
+                usuario.getRol().getIdRol(),
+                usuario.getRol().getNombre(),
+                usuario.getPersona().getNombreCompleto(),
+                actual.esAdmin());
+    }
+
     @Override
     public UsuarioDTO registrar(RegistroDTO dto) {
         if (dto==null) {
@@ -62,7 +85,7 @@ public class AuthServiceImpl implements AuthService {
         }
         try {
             //creamos el usuario en la base de datos
-            UsuarioDTO usuarioCreado = usuarioService.create(new UsuarioDTO(null, personaDTO.idPers(), Roles.CLIENTE, idFirebase, null, null));
+            UsuarioDTO usuarioCreado = usuarioService.create(new UsuarioDTO(null, personaDTO.idPers(), Roles.CLIENTE, idFirebase, null, null, null, null, null));
             
             return usuarioCreado;
         } catch (RuntimeException e) {

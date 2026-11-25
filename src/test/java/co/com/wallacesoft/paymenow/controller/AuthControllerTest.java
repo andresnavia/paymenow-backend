@@ -1,5 +1,9 @@
 package co.com.wallacesoft.paymenow.controller;
 
+import co.com.wallacesoft.paymenow.config.SecurityConfig;
+import co.com.wallacesoft.paymenow.repository.UsuarioRepository;
+import com.google.firebase.auth.FirebaseAuth;
+import org.springframework.context.annotation.Import;
 import co.com.wallacesoft.paymenow.constants.Roles;
 import co.com.wallacesoft.paymenow.dto.RegistroDTO;
 import co.com.wallacesoft.paymenow.dto.UsuarioDTO;
@@ -24,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AuthController.class)
+@Import(SecurityConfig.class)
 class AuthControllerTest {
 
     private static final String URL_REGISTRO = "/api/v1/auth/register";
@@ -37,6 +42,12 @@ class AuthControllerTest {
     @MockBean
     private AuthService authService;
 
+    @MockBean
+    private FirebaseAuth firebaseAuth;
+
+    @MockBean
+    private UsuarioRepository usuarioRepository;
+
     private RegistroDTO registroValido() {
         return new RegistroDTO("Ana", null, "Gomez", null, "F", LocalDate.of(1995, 5, 10),
                 1, null, "123456", "ana@correo.com", null, "3001234567", "secreto123");
@@ -44,7 +55,7 @@ class AuthControllerTest {
 
     @Test
     void registrar_conDatosValidos_deberiaRetornar201ConUsuarioCreado() throws Exception {
-        UsuarioDTO usuarioCreado = new UsuarioDTO(1, 10, Roles.CLIENTE, "uid-firebase-1", "S", LocalDate.now());
+        UsuarioDTO usuarioCreado = new UsuarioDTO(1, 10, Roles.CLIENTE, "uid-firebase-1", "S", LocalDate.now(), null, null, null);
         when(authService.registrar(any(RegistroDTO.class))).thenReturn(usuarioCreado);
 
         mockMvc.perform(post(URL_REGISTRO)

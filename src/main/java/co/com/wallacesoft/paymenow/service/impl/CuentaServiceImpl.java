@@ -1,5 +1,7 @@
 package co.com.wallacesoft.paymenow.service.impl;
 
+import co.com.wallacesoft.paymenow.repository.CuentaAsociadaRepository;
+import co.com.wallacesoft.paymenow.security.UsuarioActual;
 import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.CuentaDTO;
 import co.com.wallacesoft.paymenow.entity.Cuenta;
@@ -26,29 +28,37 @@ public class CuentaServiceImpl implements CuentaService {
     private final CuentaRepository cuentaRepository;
     private final PlataformaRepository plataformaRepository;
     private final PersonaRepository personaRepository;
+    private final CuentaAsociadaRepository cuentaAsociadaRepository;
     private final EntityManager entityManager;
+    private final UsuarioActual usuarioActual;
 
     @Override
     @Transactional(readOnly = true)
     public List<CuentaDTO> findAll() {
-        return cuentaRepository.findAll().stream().map(this::toDTO).toList();
+        return cuentasVisibles().stream().map(this::toDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public CuentaDTO findById(Integer id) {
-        return toDTO(getEntityOrThrow(id));
+        Cuenta entity = getEntityOrThrow(id);
+        if (!puedeVer(entity)) {
+            throw new ResourceNotFoundException("Cuenta", id);
+        }
+        return toDTO(entity);
     }
 
     @Override
     public ContadorDTO count() {
-        return new ContadorDTO(cuentaRepository.count());
+        return new ContadorDTO(usuarioActual.esAdmin() ? cuentaRepository.count() : cuentasVisibles().size());
     }
 
     @Override
     public CuentaDTO create(CuentaDTO dto) {
         Plataforma plataforma = getPlataformaOrThrow(dto.idPlat());
-        Persona propietario = getPersonaOrThrow(dto.idPers());
+        // Un cliente siempre crea la cuenta a su nombre, sin importar lo que llegue en el body
+        Integer idPropietario = usuarioActual.esAdmin() ? dto.idPers() : usuarioActual.idPersona();
+        Persona propietario = getPersonaOrThrow(idPropietario);
 
         Cuenta entity = Cuenta.builder()
                 .plataforma(plataforma)
@@ -65,8 +75,14 @@ public class CuentaServiceImpl implements CuentaService {
     @Override
     public CuentaDTO update(Integer id, CuentaDTO dto) {
         Cuenta entity = getEntityOrThrow(id);
+        if (!puedeModificar(entity)) {
+            throw new ResourceNotFoundException("Cuenta", id);
+        }
         entity.setPlataforma(getPlataformaOrThrow(dto.idPlat()));
-        entity.setPropietario(getPersonaOrThrow(dto.idPers()));
+        // Solo un administrador puede cambiar el titular
+        if (usuarioActual.esAdmin()) {
+            entity.setPropietario(getPersonaOrThrow(dto.idPers()));
+        }
         entity.setActivo(StringUtils.hasText(dto.activo()) ? dto.activo() : entity.getActivo());
         entity.setFechaPago(dto.fechaPago());
         return toDTO(cuentaRepository.save(entity));
@@ -75,6 +91,22 @@ public class CuentaServiceImpl implements CuentaService {
     @Override
     public void delete(Integer id) {
         cuentaRepository.delete(getEntityOrThrow(id));
+    }
+
+    private List<Cuenta> cuentasVisibles() {
+        return usuarioActual.esAdmin()
+                ? cuentaRepository.findAll()
+                : cuentaRepository.findVisiblesPara(usuarioActual.idPersona());
+    }
+
+    private boolean puedeModificar(Cuenta entity) {
+        return usuarioActual.esAdmin()
+                || entity.getPropietario().getIdPers().equals(usuarioActual.idPersona());
+    }
+
+    private boolean puedeVer(Cuenta entity) {
+        return puedeModificar(entity) || cuentaAsociadaRepository.existsByCuenta_IdCuenAndPersona_IdPersAndActivo(
+                entity.getIdCuen(), usuarioActual.idPersona(), "S");
     }
 
     private Cuenta getEntityOrThrow(Integer id) {
@@ -99,6 +131,8 @@ public class CuentaServiceImpl implements CuentaService {
                 entity.getPropietario().getIdPers(),
                 entity.getActivo(),
                 entity.getFechaPago(),
-                entity.getFechaCreacion());
+                entity.getFechaCreacion(),
+                entity.getPropietario().getNombreCompleto(),
+                entity.getPlataforma().getNombre());
     }
 }

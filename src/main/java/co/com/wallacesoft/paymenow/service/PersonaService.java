@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service;
 
+import co.com.wallacesoft.paymenow.dto.PersonaBasicaDTO;
 import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PersonaDTO;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,8 @@ public interface PersonaService {
     PersonaDTO findByIdentificacion(String identificacion);
 
     Optional<PersonaDTO> buscarPorIdentificacion(String identificacion);
+
+    PersonaBasicaDTO buscarBasicaPorIdentificacion(String identificacion);
 
     PersonaDTO create(PersonaDTO dto);
 

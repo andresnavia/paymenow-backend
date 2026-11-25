@@ -20,6 +20,12 @@ public record CuentaAsociadaDTO(
         @Pattern(regexp = "[SN]", message = "Notifica debe ser 'S' o 'N'")
         String notifica,
 
-        LocalDate fechaCreacion
+        LocalDate fechaCreacion,
+
+        // Solo de respuesta: se ignoran al crear o actualizar
+        String nombrePersona,
+
+        // "<plataforma> - <titular de la cuenta>", ej: "Netflix - Juan Perez"
+        String nombreCuenta
 ) {
 }

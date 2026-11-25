@@ -2,8 +2,11 @@ package co.com.wallacesoft.paymenow.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 @Table(name = "persona")
@@ -59,4 +62,12 @@ public class Persona {
 
     @Column(name = "FECHA_CREACION", nullable = false, insertable = false, updatable = false)
     private LocalDate fechaCreacion;
+
+    /** Nombres y apellidos separados por espacio, omitiendo los que esten vacios. */
+    public String getNombreCompleto() {
+        return Stream.of(primerNombre, segundoNombre, primerApellido, segundoApellido)
+                .filter(StringUtils::hasText)
+                .map(String::trim)
+                .collect(Collectors.joining(" "));
+    }
 }

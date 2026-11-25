@@ -1,5 +1,8 @@
 package co.com.wallacesoft.paymenow.service.impl;
 
+import co.com.wallacesoft.paymenow.dto.PersonaBasicaDTO;
+import co.com.wallacesoft.paymenow.security.UsuarioActual;
+import org.springframework.data.domain.PageImpl;
 import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PersonaDTO;
 import co.com.wallacesoft.paymenow.entity.Persona;
@@ -29,22 +32,36 @@ public class PersonaServiceImpl implements PersonaService {
     private final PersonaRepository personaRepository;
     private final TiposIdentificacionRepository tiposIdentificacionRepository;
     private final EntityManager entityManager;
+    private final UsuarioActual usuarioActual;
 
     @Override
     @Transactional(readOnly = true)
     public List<PersonaDTO> findAll() {
+        if (!usuarioActual.esAdmin()) {
+            return List.of(toDTO(getEntityOrThrow(usuarioActual.idPersona())));
+        }
         return personaRepository.findAll().stream().map(this::toDTO).toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<PersonaDTO> findAll(Pageable pageable) {
+        if (!usuarioActual.esAdmin()) {
+            List<PersonaDTO> contenido = pageable.getOffset() == 0
+                    ? List.of(toDTO(getEntityOrThrow(usuarioActual.idPersona())))
+                    : List.of();
+            return new PageImpl<>(contenido, pageable, 1);
+        }
         return personaRepository.findAll(pageable).map(this::toDTO);
     }
 
     @Override
     public PersonaDTO findByIdentificacion(String identificacion) {
-        return toDTO(getEntityByIdentificacionOrThrow(identificacion));
+        Persona entity = getEntityByIdentificacionOrThrow(identificacion);
+        if (!puedeVer(entity)) {
+            throw new ResourceNotFoundException("Persona", identificacion);
+        }
+        return toDTO(entity);
     }
 
     @Override
@@ -55,13 +72,27 @@ public class PersonaServiceImpl implements PersonaService {
 
     @Override
     @Transactional(readOnly = true)
+    public PersonaBasicaDTO buscarBasicaPorIdentificacion(String identificacion) {
+        Persona entity = getEntityByIdentificacionOrThrow(identificacion);
+        if (!"S".equalsIgnoreCase(entity.getActivo())) {
+            throw new ResourceNotFoundException("Persona", identificacion);
+        }
+        return new PersonaBasicaDTO(entity.getNombreCompleto());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PersonaDTO findById(Integer id) {
-        return toDTO(getEntityOrThrow(id));
+        Persona entity = getEntityOrThrow(id);
+        if (!puedeVer(entity)) {
+            throw new ResourceNotFoundException("Persona", id);
+        }
+        return toDTO(entity);
     }
 
     @Override
     public ContadorDTO count() {
-        return new ContadorDTO(personaRepository.count());
+        return new ContadorDTO(usuarioActual.esAdmin() ? personaRepository.count() : 1);
     }
 
     @Override
@@ -124,6 +155,10 @@ public class PersonaServiceImpl implements PersonaService {
     @Override
     public void delete(Integer id) {
         personaRepository.delete(getEntityOrThrow(id));
+    }
+
+    private boolean puedeVer(Persona entity) {
+        return usuarioActual.esAdmin() || entity.getIdPers().equals(usuarioActual.idPersona());
     }
 
     private Persona getEntityOrThrow(Integer id) {

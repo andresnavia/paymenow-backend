@@ -15,5 +15,10 @@ public record CuentaDTO(
 
                 @NotNull(message = "La fecha de pago es obligatoria") LocalDate fechaPago,
 
-                LocalDate fechaCreacion) {
+                LocalDate fechaCreacion,
+
+                // Solo de respuesta: se ignoran al crear o actualizar
+                String nombrePropietario,
+
+                String nombrePlataforma) {
 }

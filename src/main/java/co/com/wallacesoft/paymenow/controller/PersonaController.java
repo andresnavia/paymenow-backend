@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.controller;
 
+import co.com.wallacesoft.paymenow.dto.PersonaBasicaDTO;
 import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.PersonaDTO;
 import co.com.wallacesoft.paymenow.service.PersonaService;
@@ -45,6 +46,12 @@ public class PersonaController {
     @GetMapping("/contar")
     public ResponseEntity<ContadorDTO> count() {
         return ResponseEntity.ok(service.count());
+    }
+
+    // Busqueda exacta para confirmar a quien se va a asociar: solo devuelve el nombre
+    @GetMapping("/buscar")
+    public ResponseEntity<PersonaBasicaDTO> buscar(@RequestParam String identificacion) {
+        return ResponseEntity.ok(service.buscarBasicaPorIdentificacion(identificacion));
     }
 
     @GetMapping("/identificacion/{identificacion}")

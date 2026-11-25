@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.service;
 
+import co.com.wallacesoft.paymenow.security.UsuarioActual;
 import co.com.wallacesoft.paymenow.dto.CuentaAsociadaDTO;
 import co.com.wallacesoft.paymenow.entity.Cuenta;
 import co.com.wallacesoft.paymenow.entity.CuentaAsociada;
@@ -43,6 +44,9 @@ class CuentaAsociadaServiceImplTest {
     @Mock
     private EntityManager entityManager;
 
+    @Mock
+    private UsuarioActual usuarioActual;
+
     @InjectMocks
     private CuentaAsociadaServiceImpl service;
 
@@ -52,10 +56,11 @@ class CuentaAsociadaServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        org.mockito.Mockito.lenient().when(usuarioActual.esAdmin()).thenReturn(true);
         // Plataforma que solo permite 2 pantallas, para poder probar la regla de negocio facilmente
         plataforma = Plataforma.builder().idPlat(1).nombre("HBO").cantidadCuentas(2).valor(20000).build();
         cuenta = Cuenta.builder().idCuen(1).plataforma(plataforma)
-                .propietario(Persona.builder().idPers(1).build())
+                .propietario(Persona.builder().idPers(1).primerNombre("Juan").primerApellido("Perez").build())
                 .activo("S").fechaPago(LocalDate.of(2026, 9, 20)).build();
         persona = Persona.builder().idPers(2).primerNombre("Ana").primerApellido("Gomez")
                 .sexo("F").identificacion("456").email("ana@correo.com").build();
@@ -63,7 +68,7 @@ class CuentaAsociadaServiceImplTest {
 
     @Test
     void create_cuandoHayCupoDisponible_deberiaCrear() {
-        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null);
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null, null, null);
 
         when(cuentaRepository.findById(1)).thenReturn(Optional.of(cuenta));
         when(personaRepository.findById(2)).thenReturn(Optional.of(persona));
@@ -78,11 +83,95 @@ class CuentaAsociadaServiceImplTest {
         assertThat(resultado.idCuas()).isEqualTo(1);
         assertThat(resultado.idCuen()).isEqualTo(1);
         assertThat(resultado.idPers()).isEqualTo(2);
+        assertThat(resultado.nombrePersona()).isEqualTo("Ana Gomez");
+        assertThat(resultado.nombreCuenta()).isEqualTo("HBO - Juan Perez");
+    }
+
+    @Test
+    void create_cuandoPersonaEsTitularDeLaCuenta_deberiaLanzarExcepcion() {
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 1, "S", "S", null, null, null);
+
+        when(cuentaRepository.findById(1)).thenReturn(Optional.of(cuenta));
+        when(personaRepository.findById(1)).thenReturn(Optional.of(cuenta.getPropietario()));
+
+        assertThatThrownBy(() -> service.create(dto))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("La Persona ya es titular de la cuenta, no se puede seleccionar como una cuenta asociada");
+
+        verify(cuentaAsociadaRepository, never()).save(any());
+    }
+
+    @Test
+    void create_cuandoPersonaYaEstaAsociadaALaCuenta_deberiaLanzarExcepcion() {
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null, null, null);
+
+        when(cuentaRepository.findById(1)).thenReturn(Optional.of(cuenta));
+        when(personaRepository.findById(2)).thenReturn(Optional.of(persona));
+        when(cuentaAsociadaRepository.existsByCuenta_IdCuenAndPersona_IdPers(1, 2)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.create(dto))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("La Persona ya se encuentra asociada a esta cuenta.");
+
+        verify(cuentaAsociadaRepository, never()).save(any());
+    }
+
+    @Test
+    void update_cuandoOtraAsociacionTieneLaMismaPersonaYCuenta_deberiaLanzarExcepcion() {
+        CuentaAsociada existente = CuentaAsociada.builder().idCuas(5).cuenta(cuenta)
+                .persona(Persona.builder().idPers(3).build()).activo("S").notifica("S").build();
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(5, 1, 2, "S", "S", null, null, null);
+
+        when(cuentaAsociadaRepository.findById(5)).thenReturn(Optional.of(existente));
+        when(cuentaRepository.findById(1)).thenReturn(Optional.of(cuenta));
+        when(personaRepository.findById(2)).thenReturn(Optional.of(persona));
+        when(cuentaAsociadaRepository.existsByCuenta_IdCuenAndPersona_IdPersAndIdCuasNot(1, 2, 5)).thenReturn(true);
+
+        assertThatThrownBy(() -> service.update(5, dto))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("La Persona ya se encuentra asociada a esta cuenta.");
+
+        verify(cuentaAsociadaRepository, never()).save(any());
+    }
+
+    @Test
+    void update_mismaPersonaYCuentaDelRegistro_deberiaPermitirEditar() {
+        CuentaAsociada existente = CuentaAsociada.builder().idCuas(5).cuenta(cuenta).persona(persona)
+                .activo("S").notifica("S").build();
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(5, 1, 2, "N", "N", null, null, null);
+
+        when(cuentaAsociadaRepository.findById(5)).thenReturn(Optional.of(existente));
+        when(cuentaRepository.findById(1)).thenReturn(Optional.of(cuenta));
+        when(personaRepository.findById(2)).thenReturn(Optional.of(persona));
+        when(cuentaAsociadaRepository.existsByCuenta_IdCuenAndPersona_IdPersAndIdCuasNot(1, 2, 5)).thenReturn(false);
+        when(cuentaAsociadaRepository.save(existente)).thenReturn(existente);
+
+        CuentaAsociadaDTO resultado = service.update(5, dto);
+
+        assertThat(resultado.activo()).isEqualTo("N");
+    }
+
+    @Test
+    void update_cuandoPersonaEsTitularDeLaCuenta_deberiaLanzarExcepcion() {
+        CuentaAsociada existente = CuentaAsociada.builder().idCuas(5).cuenta(cuenta).persona(persona)
+                .activo("S").notifica("S").build();
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(5, 1, 1, "S", "S", null, null, null);
+
+        when(cuentaAsociadaRepository.findById(5)).thenReturn(Optional.of(existente));
+        when(cuentaRepository.findById(1)).thenReturn(Optional.of(cuenta));
+        when(personaRepository.findById(1)).thenReturn(Optional.of(cuenta.getPropietario()));
+
+        assertThatThrownBy(() -> service.update(5, dto))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage("La Persona ya es titular de la cuenta, no se puede seleccionar como una cuenta asociada");
+
+        verify(cuentaAsociadaRepository, never()).save(any());
+        assertThat(existente.getPersona()).isEqualTo(persona); // no se modifico la entidad
     }
 
     @Test
     void create_cuandoSeAlcanzoElMaximoDePantallas_deberiaLanzarBusinessException() {
-        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null);
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null, null, null);
 
         CuentaAsociada activo1 = CuentaAsociada.builder().idCuas(10).cuenta(cuenta)
                 .persona(Persona.builder().idPers(3).build()).activo("S").notifica("S").build();
@@ -103,7 +192,7 @@ class CuentaAsociadaServiceImplTest {
 
     @Test
     void create_cuandoCuentaAsociadaInactivaNoCuentaParaElLimite_deberiaCrear() {
-        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null);
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 1, 2, "S", "S", null, null, null);
 
         CuentaAsociada activo1 = CuentaAsociada.builder().idCuas(10).cuenta(cuenta)
                 .persona(Persona.builder().idPers(3).build()).activo("S").notifica("S").build();
@@ -124,7 +213,7 @@ class CuentaAsociadaServiceImplTest {
 
     @Test
     void create_cuandoCuentaNoExiste_deberiaLanzarResourceNotFound() {
-        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 99, 2, "S", "S", null);
+        CuentaAsociadaDTO dto = new CuentaAsociadaDTO(null, 99, 2, "S", "S", null, null, null);
 
         when(cuentaRepository.findById(99)).thenReturn(Optional.empty());
 

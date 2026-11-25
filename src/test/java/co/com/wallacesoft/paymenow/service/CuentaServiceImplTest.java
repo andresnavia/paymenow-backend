@@ -1,5 +1,7 @@
 package co.com.wallacesoft.paymenow.service;
 
+import co.com.wallacesoft.paymenow.security.UsuarioActual;
+import co.com.wallacesoft.paymenow.repository.CuentaAsociadaRepository;
 import co.com.wallacesoft.paymenow.dto.ContadorDTO;
 import co.com.wallacesoft.paymenow.dto.CuentaDTO;
 import co.com.wallacesoft.paymenow.entity.Cuenta;
@@ -41,6 +43,12 @@ class CuentaServiceImplTest {
     @Mock
     private EntityManager entityManager;
 
+    @Mock
+    private CuentaAsociadaRepository cuentaAsociadaRepository;
+
+    @Mock
+    private UsuarioActual usuarioActual;
+
     @InjectMocks
     private CuentaServiceImpl service;
 
@@ -50,6 +58,7 @@ class CuentaServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        org.mockito.Mockito.lenient().when(usuarioActual.esAdmin()).thenReturn(true);
         plataforma = Plataforma.builder().idPlat(1).nombre("Netflix").cantidadCuentas(4).valor(45000).build();
         propietario = Persona.builder().idPers(1).primerNombre("Juan").primerApellido("Perez")
                 .sexo("M").identificacion("123").email("juan@correo.com").build();
@@ -64,7 +73,7 @@ class CuentaServiceImplTest {
 
     @Test
     void create_conReferenciasValidas_deberiaCrearCuenta() {
-        CuentaDTO dto = new CuentaDTO(null, 1, 1, "S", LocalDate.of(2026, 9, 15), null);
+        CuentaDTO dto = new CuentaDTO(null, 1, 1, "S", LocalDate.of(2026, 9, 15), null, null, null);
 
         when(plataformaRepository.findById(1)).thenReturn(Optional.of(plataforma));
         when(personaRepository.findById(1)).thenReturn(Optional.of(propietario));
@@ -75,11 +84,25 @@ class CuentaServiceImplTest {
         assertThat(resultado.idCuen()).isEqualTo(1);
         assertThat(resultado.idPlat()).isEqualTo(1);
         assertThat(resultado.idPers()).isEqualTo(1);
+        assertThat(resultado.nombrePropietario()).isEqualTo("Juan Perez");
+        assertThat(resultado.nombrePlataforma()).isEqualTo("Netflix");
+    }
+
+    @Test
+    void findById_deberiaRetornarNombreCompletoYPlataforma() {
+        propietario.setSegundoNombre("Carlos");
+        propietario.setSegundoApellido("Gomez");
+        when(cuentaRepository.findById(1)).thenReturn(Optional.of(cuenta));
+
+        CuentaDTO resultado = service.findById(1);
+
+        assertThat(resultado.nombrePropietario()).isEqualTo("Juan Carlos Perez Gomez");
+        assertThat(resultado.nombrePlataforma()).isEqualTo("Netflix");
     }
 
     @Test
     void create_cuandoPlataformaNoExiste_deberiaLanzarExcepcion() {
-        CuentaDTO dto = new CuentaDTO(null, 99, 1, "S", LocalDate.of(2026, 9, 15), null);
+        CuentaDTO dto = new CuentaDTO(null, 99, 1, "S", LocalDate.of(2026, 9, 15), null, null, null);
 
         when(plataformaRepository.findById(99)).thenReturn(Optional.empty());
 
@@ -91,7 +114,7 @@ class CuentaServiceImplTest {
 
     @Test
     void create_cuandoPropietarioNoExiste_deberiaLanzarExcepcion() {
-        CuentaDTO dto = new CuentaDTO(null, 1, 99, "S", LocalDate.of(2026, 9, 15), null);
+        CuentaDTO dto = new CuentaDTO(null, 1, 99, "S", LocalDate.of(2026, 9, 15), null, null, null);
 
         when(plataformaRepository.findById(1)).thenReturn(Optional.of(plataforma));
         when(personaRepository.findById(99)).thenReturn(Optional.empty());
@@ -104,7 +127,7 @@ class CuentaServiceImplTest {
 
     @Test
     void create_sinActivoEnDto_deberiaUsarSPorDefecto() {
-        CuentaDTO dto = new CuentaDTO(null, 1, 1, null, LocalDate.of(2026, 9, 15), null);
+        CuentaDTO dto = new CuentaDTO(null, 1, 1, null, LocalDate.of(2026, 9, 15), null, null, null);
 
         when(plataformaRepository.findById(1)).thenReturn(Optional.of(plataforma));
         when(personaRepository.findById(1)).thenReturn(Optional.of(propietario));

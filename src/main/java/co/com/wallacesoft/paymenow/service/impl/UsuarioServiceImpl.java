@@ -109,7 +109,10 @@ public class UsuarioServiceImpl implements UsuarioService {
                 entity.getRol().getIdRol(),
                 entity.getIdFirebase(),
                 entity.getActivo(),
-                entity.getFechaCreacion());
+                entity.getFechaCreacion(),
+                entity.getPersona().getPrimerNombre(),
+                entity.getPersona().getPrimerApellido(),
+                entity.getRol().getNombre());
     }
 
     @Override

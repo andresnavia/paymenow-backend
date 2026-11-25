@@ -1,5 +1,7 @@
 package co.com.wallacesoft.paymenow.controller;
 
+import co.com.wallacesoft.paymenow.dto.PerfilDTO;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,11 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
     private final AuthService service;
+
+    @GetMapping("/me")
+    public ResponseEntity<PerfilDTO> me() {
+        return ResponseEntity.ok(service.perfilActual());
+    }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)

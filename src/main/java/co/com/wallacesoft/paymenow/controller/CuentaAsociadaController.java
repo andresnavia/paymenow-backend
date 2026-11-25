@@ -1,5 +1,6 @@
 package co.com.wallacesoft.paymenow.controller;
 
+import co.com.wallacesoft.paymenow.dto.AsociarPersonaDTO;
 import co.com.wallacesoft.paymenow.dto.CuentaAsociadaDTO;
 import co.com.wallacesoft.paymenow.service.CuentaAsociadaService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,6 +34,12 @@ public class CuentaAsociadaController {
     @ResponseStatus(HttpStatus.CREATED)
     public CuentaAsociadaDTO create(@Valid @RequestBody CuentaAsociadaDTO dto) {
         return service.create(dto);
+    }
+
+    @PostMapping("/por-identificacion")
+    @ResponseStatus(HttpStatus.CREATED)
+    public CuentaAsociadaDTO createPorIdentificacion(@Valid @RequestBody AsociarPersonaDTO dto) {
+        return service.createPorIdentificacion(dto);
     }
 
     @PutMapping("/{id}")
